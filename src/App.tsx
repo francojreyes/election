@@ -149,7 +149,7 @@ function App() {
     .sort((a, b) => compareVotes(distribution[b], distribution[a]));
 
   // Look for a winner
-  let winner = undefined;
+  let winner = NONE;
   if (started && !midRound) {
     let top = 0, count = 0;
     for (let i = 0; i < n; i++) {
@@ -164,7 +164,7 @@ function App() {
   }
 
   const handleClick = async (person: number) => {
-    if (midRound || winner !== undefined) return;
+    if (midRound || winner !== NONE) return;
     setMidRound(true);
     await eliminate(person);
     setMidRound(false);
@@ -194,9 +194,10 @@ function App() {
               max="1000"
               value={speed}
               onChange={e => setSpeed(e.target.valueAsNumber)}
+              disabled={midRound}
             />
           </div>
-          <button onClick={handleStartRound} disabled={midRound || winner !== undefined}>Simulate Next Round</button>
+          <button onClick={handleStartRound} disabled={midRound || winner !== NONE}>Simulate Next Round</button>
         </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
