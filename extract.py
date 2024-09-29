@@ -3,6 +3,8 @@ import os
 import re
 import sys
 
+TITLE_PATTERN = r"position of (.*)\. If.*<strong>(.*)</strong>"
+
 input_file = sys.argv[1]
 output_dir = input_file.split("/")[-1].replace(".csv", "")
 os.makedirs(output_dir, exist_ok=True)
@@ -23,7 +25,7 @@ for i in range(len(data)):
 # Dict of role name: [start, end, ...names]
 roles: dict[str, list] = {}
 for (idx, title) in enumerate(header):
-    match = re.findall(r"position of (.*)\. If.*<strong>(.*)</strong>", title,)
+    match = re.findall(TITLE_PATTERN, title)
     role, candidate = map(lambda s: s.strip(), match[0])
     if role in roles:
         roles[role][1] += 1

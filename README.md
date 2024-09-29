@@ -1,50 +1,40 @@
-# React + TypeScript + Vite
+# Election Simulator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Usage
+Upload a CSV of the following form, where the header is the candidate names, and the data rows are (partially filled) preferential ballots:
+```csv
+Candidate 1, Candidate 2, Candidate 3
+,1,
+1,2,
+2,3,1
+```
+The simulator assumes the data is well-formed. It may crash without error if there is malformed data.
 
-Currently, two official plugins are available:
+Click "Simulate Next Round" to visualise the round, and keep doing so until a winner is found (a candidate gets >50% votes).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+To manually eliminate a candidate, click on their name. You may want to do so if:
+- There are multiple seats for one role, and you want to rerun excluding winners of previous seats
+- One of the candidates won another role that they preferenced higher
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Generating the CSVs
+There is a script `extract.py` that takes in the file name of a Qualtrics export CSV and creates a directory of the same name containing separate CSVs for each role. For example:
+```
+python3 extract.py ~/Downloads/DevSoc_2025_AGM_Election_September_29_2024_12.26.csv
+```
+will result in
+```
+DevSoc_2025_AGM_Election_September_29_2024_12.26/
+├── Administrative Officer.csv
+├── Co-President (Non-Female).csv
+├── Co-President (Non-Male).csv
+├── Vice-President (Externals).csv
+├── Vice-President (Internals) & Welfare Officer.csv
+├── Vice-President (Project Operations).csv
+└── Vice-President (Projects).csv
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+Note that this assumes the headers are written in the format used by the 2025 DevSoc Election:
 ```
+... position of [ROLE]. If ... <strong>[CANDIDATE NAME]</strong> ...
+```
+If the format varies, you will need to edit the `TITLE_PATTERN` regex in `extract.py`
