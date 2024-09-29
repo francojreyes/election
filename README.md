@@ -1,6 +1,12 @@
 # Election Simulator
 
 ## Usage
+To load up the simulator:
+```
+npm install
+npm run dev
+```
+
 Upload a CSV of the following form, where the header is the candidate names, and the data rows are (partially filled) preferential ballots:
 ```csv
 Candidate 1, Candidate 2, Candidate 3
@@ -17,7 +23,7 @@ To manually eliminate a candidate, click on their name. You may want to do so if
 - One of the candidates won another role that they preferenced higher
 
 ## Generating the CSVs
-There is a script `extract.py` that takes in the file name of a Qualtrics export CSV and creates a directory of the same name containing separate CSVs for each role. For example:
+There is a script `extract.py` that takes in the file name of a Qualtrics export CSV and creates a directory of the same name containing separate CSVs for each role to be used with the simulator. For example:
 ```
 python3 extract.py ~/Downloads/DevSoc_2025_AGM_Election_September_29_2024_12.26.csv
 ```
