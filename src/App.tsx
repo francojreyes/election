@@ -210,7 +210,7 @@ function App() {
               idx === winner
                 ? "#FFCA16"
                 : eliminated.includes(idx)
-                  ? "#E5484D"
+                  ? "rgb(0,0,0,0)"
                   : "initial"
           }}
           >
@@ -218,7 +218,7 @@ function App() {
               {idx === winner
                 ? "👑"
                 : eliminated.includes(idx)
-                  ? "X"
+                  ? ""
                   : `#${ranked.indexOf(idx) + 1}`
               }
             </div>
