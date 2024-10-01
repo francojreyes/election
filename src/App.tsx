@@ -96,14 +96,13 @@ function App() {
     for (let i = 0; i < eliminatedVotes; i++) {
       setDistribution(distribution => {
         const newDistribution = cloneDeep(distribution);
-        const vote = distribution[person].shift();
-        if (!vote) return distribution;
+        const vote = newDistribution[person].shift()!;
 
         while (vote.length && (vote[0] == person || eliminated.includes(vote[0]))) {
           vote.shift();
         }
         if (vote.length && vote[0] != NONE) {
-          distribution[vote[0]].push(vote);
+          newDistribution[vote[0]].push(vote);
         }
         return newDistribution;
       });
