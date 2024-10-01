@@ -11,6 +11,10 @@ type InitialData = {
   votes: number[][];
 }
 
+const sleep = (ms: number): Promise<void> => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
 const readCsv = (csv: string): InitialData => {
   const lines = csv.split(/[\r\n]+/);
   const names = lines[0].split(",");
@@ -30,20 +34,6 @@ const readCsv = (csv: string): InitialData => {
   return { names, votes };
 };
 
-const updateDistribution = (
-  distribution: number[][][],
-  loser: number,
-  eliminated: number[]
-) => {
-  const vote = distribution[loser].shift();
-  if (vote === undefined) return undefined;
-  while (vote.length && (vote[0] == loser || eliminated.includes(vote[0]))) {
-    vote.shift();
-  }
-  if (vote.length && vote[0] != NONE) distribution[vote[0]].push(vote);
-  return distribution;
-};
-
 const compareVotes = (votesA: number[][], votesB: number[][]) => {
   const lengths = [...votesA.map(v => v.length), ...votesB.map(v => v.length)];
   const minLen = Math.min(...lengths);
@@ -57,7 +47,7 @@ const compareVotes = (votesA: number[][], votesB: number[][]) => {
   }
 
   return 0;
-}
+};
 
 function App() {
   const [init, setInit] = React.useState<InitialData>({ names: [], votes: [] });
@@ -83,42 +73,42 @@ function App() {
     };
   };
 
-  const initialiseRound = () => {
-    return new Promise((resolve) => {
-      let i = 0;
-      const intervalId = setInterval(function () {
-        setDistribution(distribution => {
-          const vote = init.votes[i++];
-          if (!vote) {
-            clearInterval(intervalId);
-            resolve(null);
-          } else {
-            while (vote.length && eliminated.includes(vote[0]))
-              vote.shift();
-            if (vote.length && vote[0] != NONE)
-              distribution[vote[0]].push(vote);
-          }
-          return cloneDeep(distribution);
-        });
-      }, speed);
-    });
+  const initialiseRound = async () => {
+    for (let i = 0; i < init.votes.length; i++) {
+      setDistribution(distribution => {
+        const vote = cloneDeep(init.votes[i]);
+        const newDistribution = cloneDeep(distribution);
+        while (vote.length && eliminated.includes(vote[0])) {
+          vote.shift();
+        }
+        if (vote.length && vote[0] != NONE) {
+          newDistribution[vote[0]].push(vote);
+        }
+        return newDistribution;
+      });
+
+      await sleep(speed);
+    }
   };
 
   const eliminate = async (person: number) => {
-    await new Promise((resolve) => {
-      const intervalId = setInterval(function () {
-        setDistribution(distribution => {
-          const newDistribution = updateDistribution(cloneDeep(distribution), person, eliminated);
-          if (!newDistribution) {
-            clearInterval(intervalId);
-            resolve(null);
-            return distribution;
-          } else {
-            return newDistribution;
-          }
-        });
-      }, speed);
-    });
+    const eliminatedVotes = distribution[person].length;
+    for (let i = 0; i < eliminatedVotes; i++) {
+      setDistribution(distribution => {
+        const newDistribution = cloneDeep(distribution);
+        const vote = distribution[person].shift()!;
+
+        while (vote.length && (vote[0] == person || eliminated.includes(vote[0]))) {
+          vote.shift();
+        }
+        if (vote.length && vote[0] != NONE) {
+          distribution[vote[0]].push(vote);
+        }
+        return newDistribution;
+      });
+
+      await sleep(speed);
+    }
 
     setEliminated([person, ...eliminated]);
   };
@@ -151,15 +141,12 @@ function App() {
   // Look for a winner
   let winner = NONE;
   if (started && !midRound) {
-    let top = 0, count = 0;
+    let count = 0;
     for (let i = 0; i < n; i++) {
-      if (distribution[i].length > distribution[top].length) {
-        top = i;
-      }
       count += distribution[i].length;
     }
-    if (distribution[top].length > count / 2) {
-      winner = top;
+    if (distribution[ranked[0]].length > count / 2) {
+      winner = ranked[0];
     }
   }
 
