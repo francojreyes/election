@@ -54,7 +54,7 @@ function App() {
   const [distribution, setDistribution] = React.useState<number[][][]>([]);
   const [eliminated, setEliminated] = React.useState<number[]>([]);
   const [midRound, setMidRound] = React.useState(false);
-  const [speed, setSpeed] = React.useState(200);
+  const [speed, setSpeed] = React.useState(150);
   const n = init.names.length;
 
   const handleUploadCsv = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,7 +96,8 @@ function App() {
     for (let i = 0; i < eliminatedVotes; i++) {
       setDistribution(distribution => {
         const newDistribution = cloneDeep(distribution);
-        const vote = distribution[person].shift()!;
+        const vote = distribution[person].shift();
+        if (!vote) return distribution;
 
         while (vote.length && (vote[0] == person || eliminated.includes(vote[0]))) {
           vote.shift();
