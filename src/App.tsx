@@ -75,19 +75,20 @@ function App() {
 
   const initialiseRound = async () => {
     for (let i = 0; i < init.votes.length; i++) {
-      setDistribution(distribution => {
-        const vote = cloneDeep(init.votes[i]);
-        const newDistribution = cloneDeep(distribution);
-        while (vote.length && eliminated.includes(vote[0])) {
-          vote.shift();
-        }
-        if (vote.length && vote[0] != NONE) {
-          newDistribution[vote[0]].push(vote);
-        }
-        return newDistribution;
-      });
+      const vote = cloneDeep(init.votes[i]);
+      while (vote.length && eliminated.includes(vote[0])) {
+        vote.shift();
+      }
 
-      await sleep(speed);
+      if (vote.length && vote[0] != NONE) {
+        setDistribution(distribution => {
+          const newDistribution = cloneDeep(distribution);
+          newDistribution[vote[0]].push(vote);
+          return newDistribution;
+        });
+
+        await sleep(speed);
+      }
     }
   };
 
